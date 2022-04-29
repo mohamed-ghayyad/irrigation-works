@@ -6,9 +6,12 @@ Currently solving Irrigation rotation for two turn rotation (A , B ) and three-t
 
 Next:
 
-longitudinal section design
+longitudinal section design.
+
 hydraulic calculations.
+
 design of hydraulic structure weirs.
+
 design of tail escape.
 
 ![SkIaA4w](https://user-images.githubusercontent.com/1581458/165882176-5fadfd07-7c73-4f9a-a8c5-e4d6ae3c70f6.png)
