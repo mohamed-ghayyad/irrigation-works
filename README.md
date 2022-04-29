@@ -1,6 +1,6 @@
 
 # Irrigation works
-C/C++ Application poorly written to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design, hydraulic calculations, and design of hydraulic structures like weirs and tail escape.
+C/C++ Application to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design, hydraulic calculations, and design of hydraulic structures like weirs and tail escape.
 
 ![SkIaA4w](https://user-images.githubusercontent.com/1581458/165882176-5fadfd07-7c73-4f9a-a8c5-e4d6ae3c70f6.png)
 ![calculation_sheet](https://user-images.githubusercontent.com/1581458/165882007-7a2a8ade-0997-4a13-9675-2d758620bb1e.png)
