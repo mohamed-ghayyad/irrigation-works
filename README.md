@@ -4,9 +4,7 @@ C/C++ Application poorly written to solve irrigation rotation whatever two-turn 
 Libraries:
 
 OpenGL
-
 GLFW
-
 ImGui
 
 to be continued....
