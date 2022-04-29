@@ -28,24 +28,22 @@ struct KM {
    int number;   // How many Kilometrage points
    float value;  // value of the KM
 };
-struct BCanal {
+struct BCanal { // structure for the branch or main or diversion canal.
    float length;              // Length of the branch or diversion canal
    int As;                    // Area served of the branch canal
    float PR[2] = {0.0, 0.0};  // partial regulator location on canal.
    int NDist;                 // Number of distributary canals
-   float PRv[2] = {0.0, 0.0};
-   // Compensation ratio of the branch canal for example 0.3
+   float PRv[2] = {0.0, 0.0}; // Compensation ratio of the branch canal for example 0.3
    bool has_dI = false;  // Does the BCanal has direct Irrigation ?
    float DiAs;
 } yCanal[1];
 
-struct DCanal {
-   // float length; // length of the distributary canal
+struct DCanal { // structure for distributary canal
    int As;  // Area served by the distributary Canal
    float PRv;
    float KMi;
-   int AA = 0;
-   int BB = 0;
+   int AA = 0; // A down stream
+   int BB = 0;  // B down stream
    float A = 0, B = 0, C = 0;
    int CC = 0;
    int AaCu = 0;
@@ -56,12 +54,11 @@ struct DCanal {
    int BaAu;
    int AaBd;
    int BaAd;
-   int mxAsu, mxAsd;
-   float Q, q;
+   int mxAsu, mxAsd; // Area served design
+   float Q, q;  // discharge values
    string location;  // the location of the suggested construction of
-                     // distributary canal on the branch canal or main canal.
-   bool upperstream = false;  // upperstream
-   bool downstream = false;   // downstream
+   bool upperstream = false;  // upperstream distributary
+   bool downstream = false;   // downstream distributary
 } iCanal[20];
 
 float discharge(int As, float FWD, float k) {
@@ -70,7 +67,7 @@ float discharge(int As, float FWD, float k) {
    float Q = (As * WD) / convert_units;  // calculate the discharge
    return Q;
 };
-int maxof(int x, int y, int z) {
+int maxof(int x, int y, int z) {  // function to find the maximum of three integer numbers
    int maxim = 0;
    if (x > y && x > z) {
       maxim = x;
@@ -81,7 +78,7 @@ int maxof(int x, int y, int z) {
    }
    return maxim;
 }
-bool inRange(int low, int high, int x) { return ((x - high) * (x - low) <= 0); }
+bool inRange(int low, int high, int x) { return ((x - high) * (x - low) <= 0); } // function to find if value within range to find the partial regulator locations
 ofstream log("log.txt");
 float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
                 float K) {
@@ -595,15 +592,15 @@ int main(int, char**) {
                                      "OpenGL, GLFW, and ImGui\n");
                   ImGui::Text("Software Engineer: ");
                   ImGui::SameLine();
-                  ImGui::TextColored(ImVec4(0.8, 0.8f, 0.0f, 1.f),
-                                     "Eng.Mohamed Jamal");
+                  ImGui::TextColored(ImVec4(0.8, 0.0f, 0.0f, 1.f),
+                                     "Eng.Mohamed Jamal github.com/mohamed-ghayyad");
                   ImGui::Text("Supervisor: ");
                   ImGui::SameLine();
                   ImGui::TextColored(ImVec4(0.8, 0.8f, 0.0f, 1.f),
                                      "Dr.Mohamed Anas");
-                  ImGui::Text("Software testing: ");
+                  ImGui::Text("Software testing and Linux Guru: ");
                   ImGui::SameLine();
-                  ImGui::TextColored(ImVec4(0.8, 0.8f, 0.0f, 1.f), "exor");
+                  ImGui::TextColored(ImVec4(0.8, 0.0f, 0.0f, 1.f), "James Ross github.com/itzexor");
                   if (ImGui::Button("Close")) {
                      ImGui::CloseCurrentPopup();
                      about = false;
