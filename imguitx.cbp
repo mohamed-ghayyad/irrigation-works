@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="irrigation-works" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/irrigation-works" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-std=gnu++11" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-lfreetype -lglfw3dll -lopengl32 -lgdi32" />
+					<Add option="-static" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/irrigation-works" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-lfreetype -lglfw3 -lopengl32" />
+					<Add option="-static" />
+					<Add option="-lfreetype -lglfw3dll -lopengl32" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="icon.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="imconfig.h" />
+		<Unit filename="imgui.cpp" />
+		<Unit filename="imgui.h" />
+		<Unit filename="imgui_draw.cpp" />
+		<Unit filename="imgui_impl_glfw.cpp" />
+		<Unit filename="imgui_impl_glfw.h" />
+		<Unit filename="imgui_impl_opengl3.cpp" />
+		<Unit filename="imgui_impl_opengl3.h" />
+		<Unit filename="imgui_impl_opengl3_loader.h" />
+		<Unit filename="imgui_internal.h" />
+		<Unit filename="imgui_stdlib.cpp" />
+		<Unit filename="imgui_stdlib.h" />
+		<Unit filename="imgui_tables.cpp" />
+		<Unit filename="imgui_widgets.cpp" />
+		<Unit filename="imstb_rectpack.h" />
+		<Unit filename="imstb_textedit.h" />
+		<Unit filename="imstb_truetype.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
