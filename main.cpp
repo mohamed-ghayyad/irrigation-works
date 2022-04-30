@@ -692,8 +692,8 @@ int main(int, char**) {
                ImGui::Begin("Kilometrage data", &show__canal_window);
 
                for (int m = 0; m < Kmn; m++) {
-                  std::string counter = iCanal[m].location;
-                  if (counter.length() > 6) {
+                  std::string locationstd = iCanal[m].location;
+                  if (locationstd.length() > 6) {
                      ImGui::OpenPopup("Area served error");
                      bool opd32n = true;
                      if (ImGui::BeginPopupModal(
@@ -701,7 +701,7 @@ int main(int, char**) {
                              ImGuiWindowFlags_NoDecoration)) {
                         ImGui::TextColored(
                             ImVec4(0.7f, 0.7f, 0.0f, 1.0f),
-                            "Area served limit Error for security "
+                            "Area served limit Error for security " // preventing possible buffer overflow.
                             "reasons.");
                         if (ImGui::Button("Close")) {
                            ImGui::CloseCurrentPopup();
@@ -742,6 +742,23 @@ int main(int, char**) {
                         if (ImGui::Button("Close")) {
                            ImGui::CloseCurrentPopup();
                            iCanal[m].As = 0;
+                        }
+                        // iCanal[m].KMi =iCanal[m-1].KMi+1;
+                        ImGui::EndPopup();
+                     }
+                  }
+                  if(iCanal[m].KMi == iCanal[m-1].KMi && iCanal[m].KMi!=0){
+                     ImGui::OpenPopup("kilometrage error");
+                     bool opd32n = true;
+                     if (ImGui::BeginPopupModal(
+                             "kilometrage error", &opd32n)) {
+                        ImGui::TextColored(
+                            ImVec4(0.8f, 0.8f, 0.0f, 1.0f),
+                            "Kilometrage value cannot be the same "
+                            "as the previous value.");
+                        if (ImGui::Button("Close")) {
+                           ImGui::CloseCurrentPopup();
+                           iCanal[m].KMi = iCanal[m-1].KMi +1;
                         }
                         // iCanal[m].KMi =iCanal[m-1].KMi+1;
                         ImGui::EndPopup();

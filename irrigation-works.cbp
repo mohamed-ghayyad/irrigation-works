@@ -18,8 +18,9 @@
 				<Linker>
 					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
-					<Add option="-lfreetype -lglfw3dll -lopengl32 -lgdi32" />
+					<Add option="-lfreetype -lglfw3dll -lopengl32" />
 					<Add option="-static" />
+					<Add option="-lfreetype -lglfw3 -lopengl32" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -34,9 +35,8 @@
 					<Add option="-s" />
 					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
-					<Add option="-lfreetype -lglfw3 -lopengl32" />
-					<Add option="-static" />
 					<Add option="-lfreetype -lglfw3dll -lopengl32" />
+					<Add option="-static" />
 				</Linker>
 			</Target>
 		</Build>
