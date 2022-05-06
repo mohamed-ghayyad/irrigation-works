@@ -1,5 +1,5 @@
 # Irrigation works
-C/C++ Application to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design
+An Application to solve the engineering problems that might take an average of 30 minutes from a civil engineer to solve manually in milliseconds using C++ data structures,immediate mode graphic user interface, GLFW to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design
 , and design of hydraulic structures like weirs and tail escape.
 
 Solving the engineering problem for Irrigation works:
@@ -34,12 +34,5 @@ Calculation sheet after solving two turn rotation problem
 
 ![calculation_sheet_threeturn](https://user-images.githubusercontent.com/1581458/165882012-c110cd90-9eb0-4fdf-91e8-9f5396b48906.png)
 
-Libraries:
-
-OpenGL
-
-GLFW
-
-ImGui
 
 to be continued....
