@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <iostream>
+#include <cmath>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -78,12 +79,31 @@ int maxof(int x, int y, int z) {  // function to find the maximum of three integ
    }
    return maxim;
 }
+struct canaldim{
+float Qb,qb;
+float Qd,qd ;
+int n_1 = 44; // 1 / n
+int slope = 10; // i cpk
+float Z=1.0;
+float bd=2.0;
+}dim;
+float longitudinal(float z,float bd,float Q,float N,float si){
+    float Ax = pow((z + bd) ,1.6666666667);
+    float Ay = pow( ( 2 * sqrt(pow(z,2) + 1) )+ bd , 0.6666666667);
+    float Axy = Ax / Ay;
+    float xZ = pow((si*pow(10,-5)),0.5 ) * N;
+    float dZ = Q / xZ;
+    float AB = dZ / Axy;
+    dim.Qd = pow(AB , 0.375) ;
+    return dim.Qd;
+}
 bool inRange(int low, int high, int x) { return ((x - high) * (x - low) <= 0); } // function to find if value within range to find the partial regulator locations
-ofstream log("log.txt");
+ofstream logres("log.txt");
 float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
                 float K) {
    struct DCanal xCanal[number];
    struct KM vKM[number];
+   struct canaldim longValues[number];
    int Calc = 0;
    // float AA[number][2];
    // float PRv[2]={0.0,0.0};
@@ -96,7 +116,7 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
    result << "KM,A(up),A(down),B(up),B(down),C(up),C(down),B(up) +cr "
              "A(up),B(down) +cr A(down),c(up) + cr B(up),C(down) + cr "
              "B(down),A(up) + cr C(up),A(down) + cr "
-             "C(down),As(up),As(down),Q(up) m^3/sec,Q(down) m^3/sec\n";
+             "C(down),As(up),As(down),Q(up) m^3/sec,Q(down) m^3/sec, b(Q upstream),d(Q upstream),b(Q downstream),d(Q downstream)\n";
 
    for (int i = 0; i < number; i++) {
       xCanal[i].As = iCanal[i].As;
@@ -121,9 +141,9 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
          vKM[i].value = iCanal[i].KMi;
       }
       if (vKM[i].value == vKM[i - 1].value && vKM[i].value != 0) {
-         log << "*** Detected two distributary Canals on the same "
+         logres << "*** Detected two distributary Canals on the same "
                 "kilometrage.\n";
-         log << "--- Correcting values in memory..\n";
+         logres << "--- Correcting values in memory..\n";
          xCanal[i].As += xCanal[i - 1].As;
          xCanal[i - 1].AA = 0;
          vKM[i].value = vKM[i - 1].value;
@@ -135,42 +155,42 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
              vKM[i].value);
       }
       if (inRange(MinR, MaxR, Calc)) {
-         log << "Partial regulator location is at downstream => KM: "
+         logres << "Partial regulator location is at downstream => KM: "
              << vKM[i].value << "\n";
 
          yCanal[0].PR[0] = vKM[i].value;
          yCanal[0].PRv[0] = Calc;
-         log << "1st Partial regulator location is at downstream => KM: "
+         logres << "1st Partial regulator location is at downstream => KM: "
              << vKM[i].value << "\n";
 
       } else if (inRange(MinR, MaxR, Calc - yCanal[0].PRv[0])) {
          yCanal[0].PRv[1] = Calc - yCanal[0].PRv[0];
          yCanal[0].PR[1] = vKM[i].value;
-         log << "2nd partial regulator is at downstream => KM: "
+         logres << "2nd partial regulator is at downstream => KM: "
              << yCanal[0].PR[1] << "\n";
       } else {
-         log << "No Partial regulator.\n";
+         logres << "No Partial regulator.\n";
       }
       if (xCanal[i].location == "left") {
          // std::cout << "Dist Canal is left with As= " << xCanal[i].As << "
          // now total= " << Calc << std::endl;
-         log << "Dist Canal is left with As= " << xCanal[i].As
+         logres << "Dist Canal is left with As= " << xCanal[i].As
              << " now total= " << Calc << "\n";
 
       } else if (xCanal[i].location == "right") {
-         log << "Dist Canal is right with As= " << xCanal[i].As
+         logres << "Dist Canal is right with As= " << xCanal[i].As
              << " now total= " << Calc << "\n";
       } else {
-         log << "No distributary canal => " << vKM[i].value << std::endl;
+         logres << "No distributary canal => " << vKM[i].value << std::endl;
       }
       if (i == number - 1) {
          int CAs = Asi - (Calc);
          xCanal[i].As = CAs;
          yCanal[0].has_dI = true;
          yCanal[0].DiAs = CAs;
-         log << "Total calculated area served from distributaries = " << Calc
+         logres << "Total calculated area served from distributaries = " << Calc
              << "\n";
-         log << "Direct Irrigation Area = " << CAs << "\n";
+         logres << "Direct Irrigation Area = " << CAs << "\n";
       }
    }
    for (int j = 0; j < number; j++) {
@@ -192,7 +212,11 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd =
              maxof(xCanal[j].AaCd, xCanal[j].BaAd, xCanal[j].CaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].downstream = true;
          xCanal[j].upperstream = true;
       } else if (vKM[j].value != 0 && vKM[j].value <= yCanal[0].PR[0] &&
@@ -214,7 +238,11 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd =
              maxof(xCanal[j].AaCd, xCanal[j].BaAd, xCanal[j].CaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].upperstream = true;
          xCanal[j].downstream = false;
 
@@ -237,7 +265,11 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd =
              maxof(xCanal[j].AaCd, xCanal[j].BaAd, xCanal[j].CaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].downstream = true;
          xCanal[j].upperstream = false;
 
@@ -263,6 +295,8 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd =
              maxof(xCanal[j].AaCd, xCanal[j].BaAd, xCanal[j].CaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
          xCanal[j].downstream = true;
          xCanal[j].upperstream = true;
@@ -280,7 +314,11 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd =
              maxof(xCanal[j].AaCd, xCanal[j].BaAd, xCanal[j].CaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].downstream = true;
          xCanal[j].upperstream = true;
       }
@@ -291,12 +329,13 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
              << "," << xCanal[j].CaBu << "," << xCanal[j].CaBd << ","
              << xCanal[j].AaCu << "," << xCanal[j].AaCd << ","
              << xCanal[j].mxAsu << "," << xCanal[j].mxAsd << "," << xCanal[j].Q
-             << "," << xCanal[j].q << "\n";
+             << "," << xCanal[j].q << "," << longValues[j].Qb << ","
+             <<longValues[j].Qd<< "," <<longValues[j].qb <<","<< longValues[j].qd <<"\n";
    }
 
    result.close();
 
-   log.close();
+   logres.close();
 
    return 0;
 };
@@ -304,6 +343,7 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
                 float K) {
    struct DCanal xCanal[number];
    struct KM vKM[number];
+   struct canaldim longValues[number];
    int Calc = 0;
    // float AA[number][2];
    // float PRv[2]={0.0,0.0};
@@ -311,11 +351,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
 
    yCanal[0].As = Asi;
 
-   result << "Calculation sheet for Irrigation rotation By ENG.Mohamed Gamal "
-             "and Dr.Mohamed Anas\n\n";
+   result << "\n";
    result << "KM,A(up),A(down),B(up),B(down),A(up) +cr B(up),A(down) +cr "
              "B(down),B(up) + cr A(up),B(down) + cr "
-             "A(down),As(up),As(down),Q(up) m^3/sec,Q(down) m^3/sec\n";
+             "A(down),As(up),As(down),Q(up) m^3/sec,Q(down) m^3/sec,b (upstream)  ,d (upstream),b(downstream),d(downstream)\n";
    for (int i = 0; i < number; i++) {
       xCanal[i].As = iCanal[i].As;
       xCanal[i].location = iCanal[i].location;
@@ -338,9 +377,9 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          vKM[i].value = iCanal[i].KMi;
       }
       if (vKM[i].value == vKM[i - 1].value && vKM[i].value != 0) {
-         log << "*** Detected two distributary Canals on the same "
+         logres << "*** Detected two distributary Canals on the same "
                 "kilometrage.\n";
-         log << "--- Correcting values in memory..\n";
+         logres << "--- Correcting values in memory..\n";
          xCanal[i].As += xCanal[i - 1].As;
          xCanal[i - 1].AA = 0;
          vKM[i].value = vKM[i - 1].value;
@@ -348,29 +387,29 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          i = i - 1;
       }
       if (inRange(MinR, MaxR, Calc)) {
-         log << "Partial regulator location is at downstream => KM: "
+         logres << "Partial regulator location is at downstream => KM: "
              << vKM[i].value << "\n";
          yCanal[0].PR[0] = vKM[i].value;
          yCanal[0].PRv[0] = Calc;
       } else {
-         log << "No partial regulator at this location.\n";
+         logres << "No partial regulator at this location.\n";
       }
       if (xCanal[i].location == "left") {
          // std::cout << "Dist Canal is left with As= " << xCanal[i].As << "
          // now total= " << Calc << std::endl;
-         log << "Dist Canal is left with As= " << xCanal[i].As
+         logres << "Dist Canal is left with As= " << xCanal[i].As
              << " now total= " << Calc << "\n";
 
       } else if (xCanal[i].location == "right") {
          // std::cout << "Dist Canal is right with As= " << xCanal[i].As << "
          // now total= " << Calc << std::endl;
-         log << "Dist Canal is right with As= " << xCanal[i].As
+         logres << "Dist Canal is right with As= " << xCanal[i].As
              << " now total= " << Calc << "\n";
       } else {
          // std::cout << xCanal[i].location;
          // std::cout << "No distributary canal => " << vKM[i].value <<
          // std::endl;
-         log << "No distributary canal => " << vKM[i].value << std::endl;
+         logres << "No distributary canal => " << vKM[i].value << std::endl;
          // inRange(MinR, MaxR, Calc)? cout << "Partial regulator location is
          // betwean section[ " << i+1 << " ] down stream and section [ " <<
          // i+2 << " ] upstream.\n":  cout  <<"No partial regulator at this
@@ -383,10 +422,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          yCanal[0].DiAs = CAs;
          // std::cout << "Total calculated area served from distributaries =
          // " << Calc << std::endl;
-         log << "Total calculated area served from distributaries = " << Calc
+         logres << "Total calculated area served from distributaries = " << Calc
              << "\n";
          // std::cout << "Direct Irrigation Area = " << CAs << std::endl;
-         log << "Direct Irrigation Area = " << CAs << "\n";
+         logres << "Direct Irrigation Area = " << CAs << "\n";
       }
    }
    for (int j = 0; j < number; j++) {
@@ -403,6 +442,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd = max(xCanal[j].BaAd, xCanal[j].AaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].downstream = true;
          xCanal[j].upperstream = true;
       } else if (vKM[j].value != 0 && vKM[j].value <= yCanal[0].PR[0] &&
@@ -419,6 +462,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd = max(xCanal[j].BaAd, xCanal[j].AaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].upperstream = true;
          xCanal[j].downstream = false;
       } else if (vKM[j].value != 0 && vKM[j].value <= yCanal[0].PR[0] &&
@@ -436,6 +483,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd = max(xCanal[j].BaAd, xCanal[j].AaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].downstream = true;
          xCanal[j].upperstream = false;
       } else if (vKM[j].value > yCanal[0].PR[0] &&
@@ -450,6 +501,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd = max(xCanal[j].BaAd, xCanal[j].AaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
          xCanal[j].downstream = true;
          xCanal[j].upperstream = true;
       } else if (j == number - 1) {
@@ -463,6 +518,10 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
          xCanal[j].mxAsd = max(xCanal[j].BaAd, xCanal[j].AaBd);
          xCanal[j].Q = discharge(xCanal[j].mxAsu, FWD, K);
          xCanal[j].q = discharge(xCanal[j].mxAsd, FWD, K);
+         longValues[j].Qd = longitudinal(dim.Z,dim.bd,xCanal[j].Q,dim.n_1,dim.slope);
+         longValues[j].Qb = dim.bd * longValues[j].Qd;
+         longValues[j].qd = longitudinal(dim.Z,dim.bd,xCanal[j].q,dim.n_1,dim.slope);
+         longValues[j].qb = dim.bd * longValues[j].qd;
       } else {
          xCanal[j].A = 0;
          xCanal[j].AA = 0;
@@ -473,10 +532,12 @@ double rotation(int number, float c_ratio, int Asi, int rcycles, int FWD,
              << "," << xCanal[j].AaBd << "," << xCanal[j].BaAu << ","
              << xCanal[j].BaAd << "," << xCanal[j].mxAsu << ","
              << xCanal[j].mxAsd << "," << xCanal[j].Q << "," << xCanal[j].q
+             << ", " << longValues[j].Qb << "," << longValues[j].Qd << " ,"
+             << longValues[j].qb << "," << longValues[j].qd << " ,"
              << "\n";
    }
 
-   log.close();
+   logres.close();
    result.close();
    return 0;
 };
@@ -542,6 +603,10 @@ int main(int, char**) {
    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
    bool show__canal_window = false;
+   bool clay = true;
+   bool silt = false;
+   bool sand = false;
+
    int FWD = 50, Kmn = 8, As = 23000;
    int rotation_cycles = 2;
    string As_loc;
@@ -550,6 +615,7 @@ int main(int, char**) {
    bool drawing = false;
    bool about = false;
    int elapsed = 0;
+   bool soil_state = false;
    // Main loop
    while (!glfwWindowShouldClose(window)) {
       glfwPollEvents();
@@ -574,10 +640,34 @@ int main(int, char**) {
             ImGui::SliderFloat(
                 "Compensation ratio (0.3)", &cRatio, 0.0f,
                 1.0f);  // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("Change BackGround",
-                              (float*)&clear_color);  // Edit 3 floats
-                                                      // representing a color
+            ImGui::Text("Given b = ");
+            ImGui::SameLine();
+            ImGui::InputFloat("b = ",&dim.bd,0.0f,100.0f);
+            ImGui::Text("Soil");
+            ImGui::SameLine();
+            ImGui::Checkbox("Clay",&clay);
+            ImGui::SameLine();
+            ImGui::Checkbox("Silt",&silt);
+            ImGui::SameLine();
+            ImGui::Checkbox("Sand",&sand);
             ImGui::Checkbox("Kilometrage window", &show__canal_window);
+            ImGui::ColorEdit3("Change BackGround",
+                              (float*)&clear_color);  // Edit 3 floats representing a color
+            if(soil_state){
+
+            }else if(clay){
+                dim.Z=1.0;
+                silt = false;
+                sand = false;
+            }else if(silt){
+                dim.Z=1.5;
+                clay = false;
+                sand = false;
+            }else if(sand){
+                dim.Z=2.0;
+                silt = false;
+                clay = false;
+            }
             if (about) {
                ImGui::OpenPopup("About Irrigation Works.");
 
@@ -1000,8 +1090,8 @@ int main(int, char**) {
 
             ImGui::Text(
                 "Number of sections %i AS %i rotation cycles %i FWD %i "
-                "Factor %f",
-                Kmn, As, rotation_cycles, FWD, k);
+                "Factor %f, Z for soil %f",
+                Kmn, As, rotation_cycles, FWD, k,dim.Z);
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
                         1000.0f / ImGui::GetIO().Framerate,
                         ImGui::GetIO().Framerate);
