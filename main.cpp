@@ -111,8 +111,7 @@ float rotation3(int number, float c_ratio, int Asi, int rcycles, int FWD,
 
    yCanal[0].As = Asi;
 
-   result << "Calculation sheet for Irrigation rotation By ENG.Mohamed Gamal "
-             "and Dr.Mohamed Anas\n\n";
+   result << "\n";
    result << "KM,A(up),A(down),B(up),B(down),C(up),C(down),B(up) +cr "
              "A(up),B(down) +cr A(down),c(up) + cr B(up),C(down) + cr "
              "B(down),A(up) + cr C(up),A(down) + cr "
