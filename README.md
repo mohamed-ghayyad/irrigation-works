@@ -1,5 +1,5 @@
 # Irrigation works
-An Application to solve the engineering problems that might take an average of 30 minutes from a civil engineer to solve manually in milliseconds using C++ data structures, immediate mode graphic user interface, GLFW to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design
+An Application to solve the engineering problems that might take an average of 30 minutes from a civil engineer to solve manually in milliseconds using C++ data structures, immediate mode graphic user interface, OpenGL/GLFW to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design
 , and design of hydraulic structures like weirs and tail escape.
 
 Solving the engineering problem for Irrigation works:
