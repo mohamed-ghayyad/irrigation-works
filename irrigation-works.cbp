@@ -65,6 +65,7 @@
 		<Unit filename="imstb_textedit.h" />
 		<Unit filename="imstb_truetype.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="stb_image.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
