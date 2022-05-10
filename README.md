@@ -1,6 +1,5 @@
 # Irrigation works
-Cross Platform Application to solve the engineering problems that might take an average of 30 minutes from a civil engineer to solve manually in milliseconds using C++ data structures, immediate mode graphic user interface, OpenGL/GLFW to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design
-, and design of hydraulic structures like weirs and tail escape.
+Cross Platform Application to solve the engineering problems that might take an average of 30 minutes from a civil engineer to solve manually in milliseconds using C++ data structures, immediate mode graphic user interface, OpenGL/GLFW to solve irrigation rotation whatever two-turn rotation or three-turn rotation, longitudinal section design.
 
 Solving the engineering problem for Irrigation works:
 
@@ -10,11 +9,6 @@ Solving the engineering problem for Irrigation works:
 
 ✅ Longitudinal section design.
 
-Coming up next:
-
-Design of hydraulic structure weirs.
-
-Design of tail escape.
 
 # Problem:
 
